@@ -22,7 +22,14 @@ async function runSchema() {
   try {
     const schemaPath = path.join(__dirname, 'db', 'schema.sql');
     const sql = fs.readFileSync(schemaPath, 'utf8');
-    await pool.query(sql);
+    // pg ejecuta solo la primera sentencia si se manda todo junto; ejecutamos cada una por separado
+    const statements = sql
+      .split(';')
+      .map((s) => s.replace(/--[^\n]*/g, '').trim())
+      .filter((s) => s.length > 0);
+    for (const statement of statements) {
+      await pool.query(statement + ';');
+    }
     console.log('Esquema de base de datos verificado/creado.');
   } catch (e) {
     console.error('Error al ejecutar esquema:', e.message);
