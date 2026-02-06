@@ -40,15 +40,18 @@ Opcional: en la pestaña **Shell** de la base de datos podés conectarte y ejecu
 
 ---
 
-## 4. Ejecutar el esquema en la base (solo una vez)
+## 4. Crear las tablas en la base de datos
 
-Si no lo hiciste antes, tenés que crear las tablas:
+**El backend crea las tablas solo al arrancar.** Si la base está vacía, hacé un **redeploy** del Web Service (backend) en Render: en el dashboard del servicio, **Manual Deploy → Deploy latest commit**. Al iniciar, el servidor ejecuta `backend/db/schema.sql` y crea las tablas si no existen.
 
-- Opción A: En el **Shell** de la base de datos en Render, conectarte con `psql` y pegar/ejecutar el contenido de `backend/db/schema.sql`.
-- Opción B: Desde tu PC, si tenés `psql` y la **External Database URL** de Render:  
+Si preferís ejecutar el esquema a mano (por ejemplo desde tu PC):
+
+- Con **psql** instalado y la **External Database URL** de Render (en la base de datos → **Info** → **External Database URL**):  
   `psql "URL_EXTERNA" -f backend/db/schema.sql`
 
-Después de esto, la API del backend ya puede leer/escribir en Postgres.
+### Si ves errores 500 o "relation \"puestos\" does not exist"
+
+Las tablas aún no existen. La forma más simple: **redeploy del backend** en Render (Manual Deploy). Al arrancar, el backend ejecuta el esquema y crea las tablas. Luego recargá la app en el navegador.
 
 ---
 

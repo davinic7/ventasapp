@@ -2,6 +2,11 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import pkg from 'pg';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const { Pool } = pkg;
 
 const app = express();
@@ -10,6 +15,19 @@ const PORT = process.env.PORT || 3001;
 const pool = process.env.DATABASE_URL
   ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
   : null;
+
+/** Ejecutar esquema al arrancar si hay DB (crea tablas si no existen). */
+async function runSchema() {
+  if (!pool) return;
+  try {
+    const schemaPath = path.join(__dirname, 'db', 'schema.sql');
+    const sql = fs.readFileSync(schemaPath, 'utf8');
+    await pool.query(sql);
+    console.log('Esquema de base de datos verificado/creado.');
+  } catch (e) {
+    console.error('Error al ejecutar esquema:', e.message);
+  }
+}
 
 app.use(cors());
 app.use(express.json({ limit: '5mb' }));
@@ -300,7 +318,14 @@ app.get('/health', (req, res) => {
   res.json({ ok: true, database: !!pool });
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor en http://localhost:${PORT}`);
-  if (!pool) console.warn('DATABASE_URL no definida: la API responderá 503 en rutas de datos.');
+async function start() {
+  await runSchema();
+  app.listen(PORT, () => {
+    console.log(`Servidor en http://localhost:${PORT}`);
+    if (!pool) console.warn('DATABASE_URL no definida: la API responderá 503 en rutas de datos.');
+  });
+}
+start().catch((e) => {
+  console.error('Error al iniciar:', e);
+  process.exit(1);
 });
