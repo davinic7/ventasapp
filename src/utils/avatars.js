@@ -12,7 +12,6 @@ export const AVATARES_PUESTOS = [
 // Iconos por categoría - Específicos para Argentina
 export const ICONOS_COMIDAS = [
   '🌭', // Pancho
-  '🌭', // Chorypan (usando pancho)
   '🥟', // Empanadas
   '🍕', // Pizza
   '🍔', // Hamburguesas

@@ -276,16 +276,45 @@
   width: 100%;
 }
 
-.producto-card-info strong {
+.producto-card-info-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.producto-card-info-top strong {
+  flex: 1;
+  min-width: 0;
   font-size: 0.7rem;
   color: #1e293b;
   text-align: center;
   line-height: 1.2;
-  display: block;
-  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.btn-ver-descripcion-producto {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.12);
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-ver-descripcion-producto:hover {
+  background: rgba(99, 102, 241, 0.25);
+  transform: scale(1.1);
 }
 
 .producto-btn {
@@ -686,6 +715,26 @@
   font-size: 1.5rem;
   border-bottom: 2px solid #6366f1;
   padding-bottom: 0.75rem;
+}
+
+/* Modal ver descripción del producto */
+.modal-descripcion-producto {
+  max-width: 420px;
+}
+
+.descripcion-producto-contenido {
+  margin: 1rem 0 1.5rem;
+}
+
+.descripcion-producto-texto {
+  margin: 0;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 3px solid #6366f1;
+  color: #475569;
+  line-height: 1.6;
+  white-space: pre-wrap;
 }
 
 /* Modal elegir unidad (docena/vaso-botella) */

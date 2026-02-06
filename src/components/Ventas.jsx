@@ -62,6 +62,7 @@ const Ventas = ({ onVolver }) => {
   const [productoParaUnidad, setProductoParaUnidad] = useState(null);
   const [comboProductoParaUnidad, setComboProductoParaUnidad] = useState(null);
   const [mostrarConfirmacionHijoComunidad, setMostrarConfirmacionHijoComunidad] = useState(false);
+  const [productoDescripcionVer, setProductoDescripcionVer] = useState(null);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
 
@@ -643,7 +644,22 @@ const Ventas = ({ onVolver }) => {
                     )}
                   </div>
                   <div className="producto-card-info">
-                    <strong>{producto.nombre}</strong>
+                    <div className="producto-card-info-top">
+                      <strong>{producto.nombre}</strong>
+                      {producto.descripcion && producto.descripcion.trim() && (
+                        <button
+                          type="button"
+                          className="btn-ver-descripcion-producto"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setProductoDescripcionVer(producto);
+                          }}
+                          title="Ver descripción"
+                        >
+                          ℹ️
+                        </button>
+                      )}
+                    </div>
                     {producto.esCombo && <span className="badge-combo-mini">COMBO</span>}
                     {tieneVariantes ? (
                       <span className="producto-precio">Varios</span>
@@ -670,6 +686,30 @@ const Ventas = ({ onVolver }) => {
           )}
         </div>
       </div>
+
+      {/* MODAL: Ver descripción del producto */}
+      {productoDescripcionVer && createPortal(
+        <div className="modal-overlay" onClick={() => setProductoDescripcionVer(null)}>
+          <div className="modal-content modal-descripcion-producto" onClick={(e) => e.stopPropagation()}>
+            <h3>ℹ️ {productoDescripcionVer.nombre}</h3>
+            <div className="descripcion-producto-contenido">
+              <p className="descripcion-producto-texto">
+                {productoDescripcionVer.descripcion && productoDescripcionVer.descripcion.trim()
+                  ? productoDescripcionVer.descripcion
+                  : 'Sin descripción'}
+              </p>
+            </div>
+            <button
+              type="button"
+              className="btn-cancelar"
+              onClick={() => setProductoDescripcionVer(null)}
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
 
       {/* MODAL: Elegir unidad de venta (docena/vaso-botella) */}
       {productoParaUnidad && createPortal(

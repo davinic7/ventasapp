@@ -237,7 +237,7 @@ const Productos = ({ onVolver, triggerAgregar, onTriggerConsumido }) => {
       puestoId: formData.puestoId || null,
       descripcion: formData.descripcion,
       icono: formData.icono || '📦',
-      imagenUrl: formData.imagenUrl || null,
+      imagenUrl: productoEditando ? null : (formData.imagenUrl || null),
       unidadBase,
       unidadesVenta
     };
@@ -451,43 +451,26 @@ const Productos = ({ onVolver, triggerAgregar, onTriggerConsumido }) => {
                 />
               </div>
 
-              {/* Campos adicionales solo para edición */}
-              {productoEditando && (
-                <>
-                  {/* Icono/Emoji del producto - Filtrado por categoría */}
-                  <div className="form-group">
-                    <label>Icono/Emoji</label>
-                    <div className="icono-selector">
-                      {obtenerIconosPorCategoria(formData.categoria).map((icono, idx) => (
-                        <button
-                          key={idx}
-                          type="button"
-                          className={`icono-option ${formData.icono === icono ? 'selected' : ''}`}
-                          onClick={() => setFormData({ ...formData, icono })}
-                        >
-                          {icono}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="icono-preview">
-                      <span className="icono-preview-icon">{formData.icono}</span>
-                      <span className="icono-preview-text">Vista previa</span>
-                    </div>
-                  </div>
-
-                  {/* URL de imagen (opcional) */}
-                  <div className="form-group">
-                    <label>URL de Imagen (opcional)</label>
-                    <input
-                      type="url"
-                      value={formData.imagenUrl}
-                      onChange={(e) => setFormData({ ...formData, imagenUrl: e.target.value })}
-                      placeholder="https://ejemplo.com/imagen.jpg"
-                    />
-                    <small>Si proporcionas una URL de imagen, se usará en lugar del emoji</small>
-                  </div>
-                </>
-              )}
+              {/* Icono/Emoji del producto (crear y editar) - según categoría */}
+              <div className="form-group">
+                <label>Icono del producto</label>
+                <div className="icono-selector">
+                  {obtenerIconosPorCategoria(formData.categoria).map((icono, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      className={`icono-option ${formData.icono === icono ? 'selected' : ''}`}
+                      onClick={() => setFormData({ ...formData, icono })}
+                    >
+                      {icono}
+                    </button>
+                  ))}
+                </div>
+                <div className="icono-preview">
+                  <span className="icono-preview-icon">{formData.icono}</span>
+                  <span className="icono-preview-text">Vista previa</span>
+                </div>
+              </div>
 
               {/* Tipo de venta: botones */}
               <div className="form-group">
