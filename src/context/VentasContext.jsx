@@ -96,6 +96,67 @@ export const VentasProvider = ({ children }) => {
     return () => { cancelled = true; };
   }, [useApi]);
 
+  // Polling automático para sincronizar entre dispositivos cuando se usa API
+  useEffect(() => {
+    if (!useApi) return;
+    
+    const POLL_INTERVAL_FAST = 3000; // 3 segundos para pedidos y ventas
+    const POLL_INTERVAL_SLOW = 8000; // 8 segundos para productos (cambian menos)
+    
+    // Polling rápido: pedidos y ventas (cambian frecuentemente)
+    const pollPedidosVentas = async () => {
+      try {
+        const [pe, v] = await Promise.all([
+          fetchPedidos(),
+          fetchVentas(),
+        ]);
+        
+        setPedidos(prev => {
+          if (JSON.stringify(prev) !== JSON.stringify(pe)) {
+            return Array.isArray(pe) ? pe : prev;
+          }
+          return prev;
+        });
+        
+        setVentas(prev => {
+          if (JSON.stringify(prev) !== JSON.stringify(v)) {
+            return Array.isArray(v) ? v : prev;
+          }
+          return prev;
+        });
+      } catch (err) {
+        // Silenciar errores de polling para no llenar la consola
+      }
+    };
+    
+    // Polling lento: productos (para cambios de stock)
+    const pollProductos = async () => {
+      try {
+        const pr = await fetchProductos();
+        setProductos(prev => {
+          if (JSON.stringify(prev) !== JSON.stringify(pr)) {
+            return Array.isArray(pr) ? pr : prev;
+          }
+          return prev;
+        });
+      } catch (err) {
+        // Silenciar errores
+      }
+    };
+    
+    // Iniciar polling
+    pollPedidosVentas();
+    pollProductos();
+    
+    const intervalFast = setInterval(pollPedidosVentas, POLL_INTERVAL_FAST);
+    const intervalSlow = setInterval(pollProductos, POLL_INTERVAL_SLOW);
+    
+    return () => {
+      clearInterval(intervalFast);
+      clearInterval(intervalSlow);
+    };
+  }, [useApi]);
+
   // Guardar en localStorage solo cuando NO se usa API
   useEffect(() => {
     if (!useApi) saveToStorage('puestos', puestos);
