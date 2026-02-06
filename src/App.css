@@ -1,0 +1,158 @@
+* {
+  box-sizing: border-box;
+}
+
+/* Base para modales (usado por Configuraciones y otros) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #1e293b;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #6366f1;
+  padding-bottom: 0.75rem;
+}
+
+.btn-cancelar {
+  padding: 0.875rem 1.75rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #64748b;
+  color: white;
+  transition: all 0.2s;
+}
+
+.btn-cancelar:hover {
+  background: #475569;
+}
+
+.app {
+  min-height: 100vh;
+  width: 100%;
+}
+
+.vista-container {
+  min-height: 100vh;
+  padding: 0.75rem;
+  background: #f8fafc;
+}
+
+.btn-volver {
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: all 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.btn-volver:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+.btn-volver:active {
+  transform: translateY(0);
+}
+
+.vista-container h2 {
+  color: #1e293b;
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+}
+
+.vista-container p {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* Modales de confirmación (compartidos) */
+.modal-confirmar {
+  max-width: 360px;
+}
+
+.modal-confirmar-texto {
+  margin: 0 0 1.5rem 0;
+  color: #475569;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.modal-confirmar-texto strong {
+  color: #1e293b;
+}
+
+.modal-confirmar-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.btn-confirmar-accion {
+  padding: 0.875rem 1.75rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: white;
+  transition: all 0.2s;
+}
+
+.btn-confirmar-accion:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+}
+
+.btn-confirmar-accion.btn-eliminar {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.btn-confirmar-accion.btn-eliminar:hover {
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+}
+
+@media (min-width: 768px) {
+  .vista-container {
+    padding: 1rem;
+  }
+
+  .btn-volver {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .vista-container h2 {
+    font-size: 1.5rem;
+  }
+}

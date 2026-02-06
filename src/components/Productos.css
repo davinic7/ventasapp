@@ -1,0 +1,787 @@
+/* ============================================
+   COMPONENTE: Productos
+   Estilos para la gestión de productos
+   Diseño móvil-first y responsive
+   ============================================ */
+
+.productos-container {
+  padding: 0.5rem 0;
+  background: #f8fafc;
+}
+
+.productos-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}
+
+.btn-nuevo-producto {
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-nuevo-producto:hover {
+  background: #4f46e5;
+}
+
+.productos-filtro-row {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.productos-categoria-btn {
+  padding: 0.5rem 0.875rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.productos-categoria-btn:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+  background: #f8fafc;
+}
+
+.productos-categoria-btn.activo {
+  background: #6366f1;
+  color: white;
+  border-color: #6366f1;
+}
+
+.productos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+/* TARJETA DE PRODUCTO - todo dentro del marco, sin recortes */
+.producto-card {
+  background: white;
+  border-radius: 12px;
+  padding: 0.85rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.producto-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.producto-card:hover {
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+}
+
+.producto-card:hover::before {
+  opacity: 1;
+}
+
+.producto-card-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Contenedor del icono: contenido centrado y visible, sin recortes */
+.producto-icono-header {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.producto-imagen-card {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 0;
+}
+
+.producto-emoji-card {
+  font-size: 1.35rem;
+  line-height: 1;
+  display: block;
+}
+
+.producto-header-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.producto-header-info h3 {
+  margin: 0 0 0.35rem 0;
+  color: #0f172a;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.producto-acciones {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.btn-icono-producto {
+  width: 2rem;
+  height: 2rem;
+  min-width: 2rem;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 0.875rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-icono-producto:hover {
+  background: #f8fafc;
+}
+
+.btn-icono-producto.btn-editar:hover {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+
+.btn-icono-producto.btn-eliminar:hover {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.producto-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge-combo {
+  background: #f59e0b;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.badge-categoria {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-categoria.bebidas {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.badge-categoria.comidas {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+}
+
+.badge-categoria.postres {
+  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  color: white;
+}
+
+.badge-categoria.otros {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+}
+
+.producto-descripcion {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.producto-card-body {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.producto-metricas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  margin-bottom: 0.4rem;
+  padding: 0.5rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  min-width: 0;
+}
+
+.metrica-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.metrica-label {
+  font-size: 0.5625rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metrica-value {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.metrica-value.precio {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.metrica-value.stock-bajo {
+  color: #ef4444;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.producto-puesto-info {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.45rem;
+  background: #f1f5f9;
+  border-radius: 6px;
+  font-size: 0.6875rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.puesto-label {
+  color: #64748b;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.puesto-nombre {
+  color: #1e293b;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.stock-bajo {
+  color: #ef4444 !important;
+}
+
+.producto-combo-items {
+  background: #fef3c7;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 3px solid #f59e0b;
+}
+
+.producto-combo-items strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #92400e;
+  font-size: 0.875rem;
+}
+
+.producto-combo-items ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #78350f;
+  font-size: 0.875rem;
+}
+
+
+
+/* SIN PRODUCTOS */
+.sin-productos {
+  text-align: center;
+  padding: 1.5rem 0.75rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.sin-productos p {
+  color: #64748b;
+  font-size: 0.9375rem;
+  margin-bottom: 0.35rem;
+}
+
+.sin-productos-hint {
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* MODAL: Formulario de producto */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #1e293b;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #6366f1;
+  padding-bottom: 0.75rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group-inline {
+  display: inline-block;
+  width: calc(50% - 0.375rem);
+  margin-right: 0.25rem;
+  vertical-align: top;
+}
+
+.form-group-inline:last-of-type {
+  margin-right: 0;
+}
+
+/* Tipo de venta: botones */
+.tipo-venta-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tipo-venta-btn {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.75rem 0.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tipo-venta-btn:hover {
+  border-color: #c7d2fe;
+  background: #f8fafc;
+}
+
+.tipo-venta-btn.activo {
+  border-color: #6366f1;
+  background: #eef2ff;
+  color: #6366f1;
+}
+
+/* Precios por variante: fila de dos campos */
+.form-precios-variante {
+  margin-bottom: 1.5rem;
+}
+
+.form-precios-variante > label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.precios-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.precio-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.precio-campo-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.precio-campo input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.precio-campo input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.form-group small {
+  display: block;
+  margin-top: 0.25rem;
+  color: #64748b;
+  font-size: 0.8125rem;
+}
+
+.toggle-combo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.toggle-combo input[type="checkbox"] {
+  width: auto;
+  cursor: pointer;
+}
+
+.combo-productos-selector {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #f8fafc;
+}
+
+.combo-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.combo-checkbox:hover {
+  background: white;
+}
+
+.combo-checkbox input[type="checkbox"] {
+  width: auto;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e2e8f0;
+}
+
+.btn-cancelar,
+.btn-guardar {
+  padding: 0.875rem 1.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancelar {
+  background: #64748b;
+  color: white;
+}
+
+.btn-cancelar:hover {
+  background: #475569;
+  transform: translateY(-2px);
+}
+
+.btn-guardar {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.btn-guardar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* MODAL SELECTOR DE CATEGORÍA */
+.modal-categoria {
+  max-width: 500px;
+}
+
+.categorias-selector {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.categoria-btn-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1.5rem;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 140px;
+}
+
+.categoria-btn-selector:hover {
+  border-color: #6366f1;
+  background: #f8fafc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+.categoria-icono {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.categoria-nombre {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.categoria-seleccionada {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 2px solid #6366f1;
+}
+
+.categoria-icono-small {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.categoria-nombre-small {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* RESPONSIVE: Tablet y Desktop */
+@media (min-width: 768px) {
+  .productos-container {
+    padding: 2rem;
+  }
+
+  .productos-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .productos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .productos-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* SELECTOR DE ICONOS */
+.icono-selector {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  background: #f8fafc;
+  border-radius: 6px;
+}
+
+.icono-option {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 1.5rem;
+  line-height: 1;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icono-option:hover {
+  border-color: #6366f1;
+  background: #f8fafc;
+}
+
+.icono-option.selected {
+  border-color: #6366f1;
+  background: #eef2ff;
+  transform: scale(1.1);
+}
+
+.icono-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+}
+
+.icono-preview-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.icono-preview-text {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
