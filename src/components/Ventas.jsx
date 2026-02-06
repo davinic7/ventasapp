@@ -501,7 +501,7 @@ const Ventas = ({ onVolver }) => {
       return;
     }
 
-    crearPedido(items, cliente.trim(), metodoPago, comprobanteUrl);
+    crearPedido(items, cliente.trim(), metodoPago, comprobanteUrl, descripcionPedido);
     setItems([]);
     setCliente('');
     setDescripcionPedido('');

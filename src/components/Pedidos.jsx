@@ -44,6 +44,7 @@ const Pedidos = ({ onVolver }) => {
   const [botellaDescontadaPorLinea, setBotellaDescontadaPorLinea] = useState({});
   /** Modal confirmar descontar botella: { pedidoId, idx, item } */
   const [confirmarDescontarBotella, setConfirmarDescontarBotella] = useState(null);
+  const [pedidoConDescripcion, setPedidoConDescripcion] = useState(null);
 
   /**
    * Obtiene la COLA de pedidos para el puesto seleccionado.
@@ -120,7 +121,22 @@ const Pedidos = ({ onVolver }) => {
       <div key={pedido.id} className="pedido-card-lista">
         <div className="pedido-card-contenido">
           <div className="pedido-numero-cliente">
-            <h4>Pedido #{pedido.numero}</h4>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <h4>Pedido #{pedido.numero}</h4>
+              {pedido.descripcion && pedido.descripcion.trim() && (
+                <button
+                  type="button"
+                  className="btn-descripcion-icono"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPedidoConDescripcion(pedido);
+                  }}
+                  title="Ver descripción del pedido"
+                >
+                  📝
+                </button>
+              )}
+            </div>
             <span className="pedido-cliente">{pedido.cliente}</span>
           </div>
           <ul className="pedido-items-resumen">
@@ -291,6 +307,33 @@ const Pedidos = ({ onVolver }) => {
               </div>
             )}
           </div>
+
+          {/* MODAL: Ver descripción del pedido */}
+          {pedidoConDescripcion && createPortal(
+            <div
+              className="modal-overlay"
+              onClick={() => setPedidoConDescripcion(null)}
+            >
+              <div className="modal-content modal-descripcion" onClick={(e) => e.stopPropagation()}>
+                <h3>📝 Descripción del Pedido #{pedidoConDescripcion.numero}</h3>
+                <div className="descripcion-pedido-contenido">
+                  <p className="descripcion-cliente"><strong>Cliente:</strong> {pedidoConDescripcion.cliente}</p>
+                  <div className="descripcion-texto">
+                    <strong>Descripción:</strong>
+                    <p>{pedidoConDescripcion.descripcion || 'Sin descripción'}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="btn-cerrar"
+                  onClick={() => setPedidoConDescripcion(null)}
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>,
+            document.body
+          )}
 
           {/* MODAL: Confirmar descontar 1 botella */}
           {confirmarDescontarBotella && createPortal(

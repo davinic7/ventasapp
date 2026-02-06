@@ -30,6 +30,20 @@ async function runSchema() {
     for (const statement of statements) {
       await pool.query(statement + ';');
     }
+    // Agregar columna descripcion si no existe (migración para tablas existentes)
+    try {
+      await pool.query(`
+        DO $$ 
+        BEGIN 
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                         WHERE table_name='pedidos' AND column_name='descripcion') THEN
+            ALTER TABLE pedidos ADD COLUMN descripcion TEXT DEFAULT '';
+          END IF;
+        END $$;
+      `);
+    } catch (e) {
+      // Ignorar errores de migración (columna ya existe o tabla no existe aún)
+    }
     console.log('Esquema de base de datos verificado/creado.');
   } catch (e) {
     console.error('Error al ejecutar esquema:', e.message);
@@ -69,6 +83,7 @@ const pedidoToApi = (row) => row ? {
   id: row.id,
   numero: row.numero,
   cliente: row.cliente,
+  descripcion: row.descripcion || '',
   estado: row.estado || 'pendiente',
   total: Number(row.total),
   metodoPago: row.metodo_pago || 'efectivo',
@@ -247,10 +262,10 @@ app.post('/api/pedidos', async (req, res) => {
     const p = req.body;
     const id = p.id || Date.now().toString();
     await pool.query(
-      `INSERT INTO pedidos (id, numero, cliente, estado, total, metodo_pago, comprobante_url, items, items_por_puesto, estados_por_puesto)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      `INSERT INTO pedidos (id, numero, cliente, descripcion, estado, total, metodo_pago, comprobante_url, items, items_por_puesto, estados_por_puesto)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
       [
-        id, p.numero || 0, p.cliente || '', p.estado || 'pendiente', Number(p.total) || 0,
+        id, p.numero || 0, p.cliente || '', p.descripcion || '', p.estado || 'pendiente', Number(p.total) || 0,
         p.metodoPago || 'efectivo', p.comprobanteUrl || null,
         JSON.stringify(p.items || []), JSON.stringify(p.itemsPorPuesto || {}), JSON.stringify(p.estadosPorPuesto || {})
       ]

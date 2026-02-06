@@ -414,3 +414,59 @@
   }
 }
 
+/* Botón icono descripción */
+.btn-descripcion-icono {
+  background: transparent;
+  border: none;
+  font-size: 1.125rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+  opacity: 0.7;
+}
+
+.btn-descripcion-icono:hover {
+  opacity: 1;
+  background: rgba(99, 102, 241, 0.1);
+  transform: scale(1.1);
+}
+
+/* Modal descripción */
+.modal-descripcion {
+  max-width: 500px;
+}
+
+.descripcion-pedido-contenido {
+  margin: 1.5rem 0;
+}
+
+.descripcion-cliente {
+  margin-bottom: 1rem;
+  color: #475569;
+  font-size: 0.9375rem;
+}
+
+.descripcion-texto {
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 3px solid #6366f1;
+}
+
+.descripcion-texto strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #1e293b;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.descripcion-texto p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+

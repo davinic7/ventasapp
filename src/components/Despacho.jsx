@@ -33,6 +33,7 @@ const Despacho = ({ onVolver }) => {
   const [mostrarHistorial, setMostrarHistorial] = useState(false);
   const [pedidoEntregando, setPedidoEntregando] = useState(null);
   const [comprobanteVer, setComprobanteVer] = useState(null);
+  const [pedidoConDescripcion, setPedidoConDescripcion] = useState(null);
 
   // Obtener pedidos listos para entregar
   const pedidosListos = obtenerPedidosPorEstado('listo');
@@ -85,7 +86,22 @@ const Despacho = ({ onVolver }) => {
           {pedidosListos.map(pedido => (
             <div key={pedido.id} className="pedido-despacho-card">
               <div className="pedido-despacho-contenido">
-                <span className="pedido-numero-despacho">Pedido #{pedido.numero}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'space-between' }}>
+                  <span className="pedido-numero-despacho">Pedido #{pedido.numero}</span>
+                  {pedido.descripcion && pedido.descripcion.trim() && (
+                    <button
+                      type="button"
+                      className="btn-descripcion-icono"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPedidoConDescripcion(pedido);
+                      }}
+                      title="Ver descripción del pedido"
+                    >
+                      📝
+                    </button>
+                  )}
+                </div>
                 <p className="pedido-cliente-despacho">{pedido.cliente}</p>
                 <ul className="pedido-items-despacho">
                   {pedido.items.map((item, idx) => (
@@ -134,6 +150,30 @@ const Despacho = ({ onVolver }) => {
                 ✅ Confirmar
               </button>
             </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* MODAL: Ver descripción del pedido */}
+      {pedidoConDescripcion && createPortal(
+        <div className="modal-overlay" onClick={() => setPedidoConDescripcion(null)}>
+          <div className="modal-content modal-descripcion" onClick={(e) => e.stopPropagation()}>
+            <h3>📝 Descripción del Pedido #{pedidoConDescripcion.numero}</h3>
+            <div className="descripcion-pedido-contenido">
+              <p className="descripcion-cliente"><strong>Cliente:</strong> {pedidoConDescripcion.cliente}</p>
+              <div className="descripcion-texto">
+                <strong>Descripción:</strong>
+                <p>{pedidoConDescripcion.descripcion || 'Sin descripción'}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="btn-cerrar"
+              onClick={() => setPedidoConDescripcion(null)}
+            >
+              Cerrar
+            </button>
           </div>
         </div>,
         document.body

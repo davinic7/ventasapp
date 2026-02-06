@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
   id                 TEXT PRIMARY KEY,
   numero             INTEGER NOT NULL,
   cliente            TEXT NOT NULL,
+  descripcion        TEXT DEFAULT '',
   estado             TEXT DEFAULT 'pendiente',
   total              NUMERIC(12,2) DEFAULT 0,
   metodo_pago        TEXT DEFAULT 'efectivo',

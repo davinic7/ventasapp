@@ -476,8 +476,9 @@ export const VentasProvider = ({ children }) => {
    * @param {String} cliente - Nombre del cliente (obligatorio)
    * @param {String} metodoPago - Método de pago (efectivo/transferencia)
    * @param {String} comprobanteUrl - URL de la foto del comprobante (si es transferencia)
+   * @param {String} descripcion - Descripción opcional del pedido
    */
-  const crearPedido = (items, cliente, metodoPago = 'efectivo', comprobanteUrl = null) => {
+  const crearPedido = (items, cliente, metodoPago = 'efectivo', comprobanteUrl = null, descripcion = '') => {
     // Items del pedido (para total y vista general); combos no llevan puestoId
     const itemsConPuesto = items.map(item => {
       const producto = productos.find(p => p.id === item.productoId);
@@ -546,6 +547,7 @@ export const VentasProvider = ({ children }) => {
       itemsPorPuesto: itemsPorPuesto,
       estadosPorPuesto: estadosPorPuesto,
       cliente: cliente.trim(),
+      descripcion: descripcion ? descripcion.trim() : '',
       estado: 'pendiente',
       total: totalPedido,
       metodoPago: metodoPago || 'efectivo',
