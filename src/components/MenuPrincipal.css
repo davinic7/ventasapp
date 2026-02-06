@@ -9,14 +9,29 @@
 
 .menu-footer {
   margin-top: auto;
-  padding-top: 2rem;
-  padding-bottom: 0.75rem;
+  padding: 1rem 0.75rem 0.85rem;
   text-align: center;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    to top,
+    rgba(15, 23, 42, 0.35),
+    rgba(15, 23, 42, 0.15),
+    transparent
+  );
 }
 
 .menu-footer-link {
-  display: inline-block;
-  opacity: 0.85;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.75);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.4);
+  opacity: 0.9;
   transition: opacity 0.2s;
 }
 
@@ -26,9 +41,9 @@
 
 .menu-footer-logo {
   display: block;
-  height: 36px;
+  height: 42px;
   width: auto;
-  max-width: 140px;
+  max-width: 200px;
   object-fit: contain;
 }
 

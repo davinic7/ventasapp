@@ -1,5 +1,23 @@
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { initRealtimeSync, emitSyncEvent, subscribeToSync } from '../utils/realtimeSync';
+import {
+  isApiMode,
+  fetchPuestos,
+  fetchProductos,
+  fetchPedidos,
+  fetchVentas,
+  createPuesto as apiCreatePuesto,
+  updatePuesto as apiUpdatePuesto,
+  deletePuesto as apiDeletePuesto,
+  createProducto as apiCreateProducto,
+  updateProducto as apiUpdateProducto,
+  patchStock as apiPatchStock,
+  deleteProducto as apiDeleteProducto,
+  createPedido as apiCreatePedido,
+  updatePedido as apiUpdatePedido,
+  deletePedido as apiDeletePedido,
+  createVenta as apiCreateVenta,
+} from '../api/ventasApi';
 
 const VentasContext = createContext();
 
@@ -12,18 +30,17 @@ export const useVentas = () => {
 };
 
 export const VentasProvider = ({ children }) => {
-  // Inicializar sincronización en tiempo real
+  const useApi = isApiMode();
   const syncInitialized = useRef(false);
   const isUpdatingFromSync = useRef(false);
 
   useEffect(() => {
-    if (!syncInitialized.current) {
+    if (!useApi && !syncInitialized.current) {
       initRealtimeSync();
       syncInitialized.current = true;
     }
-  }, []);
+  }, [useApi]);
 
-  // Funciones para localStorage
   const loadFromStorage = (key, defaultValue) => {
     try {
       const item = localStorage.getItem(key);
@@ -37,8 +54,6 @@ export const VentasProvider = ({ children }) => {
   const saveToStorage = (key, value, emitEvent = true) => {
     try {
       localStorage.setItem(key, JSON.stringify(value));
-      
-      // Emitir evento de sincronización si no viene de otro dispositivo
       if (emitEvent && !isUpdatingFromSync.current) {
         emitSyncEvent(`${key}_actualizado`, value);
       }
@@ -47,37 +62,56 @@ export const VentasProvider = ({ children }) => {
     }
   };
 
-  // Estados principales
-  const [puestos, setPuestos] = useState(() => 
-    loadFromStorage('puestos', [])
-  );
-  const [productos, setProductos] = useState(() => 
-    loadFromStorage('productos', [])
-  );
-  const [pedidos, setPedidos] = useState(() => 
-    loadFromStorage('pedidos', [])
-  );
+  const [puestos, setPuestos] = useState(() => (useApi ? [] : loadFromStorage('puestos', [])));
+  const [productos, setProductos] = useState(() => (useApi ? [] : loadFromStorage('productos', [])));
+  const [pedidos, setPedidos] = useState(() => (useApi ? [] : loadFromStorage('pedidos', [])));
   const [ventas, setVentas] = useState(() => {
+    if (useApi) return [];
     const loaded = loadFromStorage('ventas', []);
     return Array.isArray(loaded) ? loaded : [];
   });
 
-  // Guardar en localStorage cuando cambien los datos
+  // Cargar datos desde la API al montar (solo cuando useApi)
   useEffect(() => {
-    saveToStorage('puestos', puestos);
-  }, [puestos]);
+    if (!useApi) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [p, pr, pe, v] = await Promise.all([
+          fetchPuestos(),
+          fetchProductos(),
+          fetchPedidos(),
+          fetchVentas(),
+        ]);
+        if (!cancelled) {
+          setPuestos(Array.isArray(p) ? p : []);
+          setProductos(Array.isArray(pr) ? pr : []);
+          setPedidos(Array.isArray(pe) ? pe : []);
+          setVentas(Array.isArray(v) ? v : []);
+        }
+      } catch (err) {
+        console.error('Error cargando datos desde la API:', err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [useApi]);
+
+  // Guardar en localStorage solo cuando NO se usa API
+  useEffect(() => {
+    if (!useApi) saveToStorage('puestos', puestos);
+  }, [useApi, puestos]);
 
   useEffect(() => {
-    saveToStorage('productos', productos);
-  }, [productos]);
+    if (!useApi) saveToStorage('productos', productos);
+  }, [useApi, productos]);
 
   useEffect(() => {
-    saveToStorage('pedidos', pedidos);
-  }, [pedidos]);
+    if (!useApi) saveToStorage('pedidos', pedidos);
+  }, [useApi, pedidos]);
 
   useEffect(() => {
-    saveToStorage('ventas', ventas);
-  }, [ventas]);
+    if (!useApi) saveToStorage('ventas', ventas);
+  }, [useApi, ventas]);
 
   // Sincronización en tiempo real: escuchar cambios de otros dispositivos
   useEffect(() => {
@@ -141,24 +175,30 @@ export const VentasProvider = ({ children }) => {
       avatar: avatar || '👨‍🍳',
       fechaCreacion: new Date().toISOString()
     };
+    if (useApi) {
+      apiCreatePuesto(nuevoPuesto).then((data) => setPuestos(prev => [...prev, data])).catch(err => console.error(err));
+      return nuevoPuesto;
+    }
     setPuestos([...puestos, nuevoPuesto]);
     return nuevoPuesto;
   };
 
-  /**
-   * Actualiza un puesto (puede ser nombre, avatar, etc.)
-   */
   const actualizarPuesto = (id, datosActualizados) => {
-    setPuestos(puestos.map(p => 
-      p.id === id ? { ...p, ...datosActualizados } : p
-    ));
+    if (useApi) {
+      apiUpdatePuesto(id, datosActualizados).then((data) => setPuestos(prev => prev.map(p => p.id === id ? data : p))).catch(err => console.error(err));
+      return;
+    }
+    setPuestos(puestos.map(p => p.id === id ? { ...p, ...datosActualizados } : p));
   };
 
   const eliminarPuesto = (id) => {
-    // Verificar que no haya productos asignados a este puesto
     const productosAsignados = productos.filter(p => p.puestoId === id);
     if (productosAsignados.length > 0) {
       throw new Error('No se puede eliminar el puesto porque tiene productos asignados');
+    }
+    if (useApi) {
+      apiDeletePuesto(id).then(() => setPuestos(prev => prev.filter(p => p.id !== id))).catch(err => console.error(err));
+      return;
     }
     setPuestos(puestos.filter(p => p.id !== id));
   };
@@ -184,19 +224,30 @@ export const VentasProvider = ({ children }) => {
         : null,
       fechaCreacion: new Date().toISOString()
     };
+    if (useApi) {
+      apiCreateProducto(nuevoProducto).then((data) => setProductos(prev => [...prev, data])).catch(err => console.error(err));
+      return nuevoProducto;
+    }
     setProductos([...productos, nuevoProducto]);
     return nuevoProducto;
   };
 
   const actualizarProducto = (id, datosActualizados) => {
-    setProductos(productos.map(p => 
-      p.id === id ? { 
-        ...p, 
+    if (useApi) {
+      const body = {
+        ...datosActualizados,
+        precio: datosActualizados.precio !== undefined ? parseFloat(datosActualizados.precio) : undefined,
+        stock: datosActualizados.stock !== undefined ? (parseFloat(datosActualizados.stock) >= 0 ? parseFloat(datosActualizados.stock) : undefined) : undefined,
+      };
+      apiUpdateProducto(id, body).then((data) => setProductos(prev => prev.map(p => p.id === id ? data : p))).catch(err => console.error(err));
+      return;
+    }
+    setProductos(productos.map(p =>
+      p.id === id ? {
+        ...p,
         ...datosActualizados,
         precio: datosActualizados.precio !== undefined ? parseFloat(datosActualizados.precio) : p.precio,
-        stock: datosActualizados.stock !== undefined
-          ? (parseFloat(datosActualizados.stock) >= 0 ? parseFloat(datosActualizados.stock) : p.stock)
-          : p.stock,
+        stock: datosActualizados.stock !== undefined ? (parseFloat(datosActualizados.stock) >= 0 ? parseFloat(datosActualizados.stock) : p.stock) : p.stock,
         unidadesVenta: datosActualizados.unidadesVenta !== undefined ? datosActualizados.unidadesVenta : p.unidadesVenta,
         unidadBase: datosActualizados.unidadBase !== undefined ? datosActualizados.unidadBase : p.unidadBase
       } : p
@@ -206,12 +257,20 @@ export const VentasProvider = ({ children }) => {
   const actualizarStock = (id, cantidad) => {
     const idStr = id == null ? '' : String(id);
     const delta = Number(cantidad);
-    setProductos(prev => prev.map(p => 
+    if (useApi) {
+      apiPatchStock(idStr, delta).then((data) => setProductos(prev => prev.map(p => String(p.id) === idStr ? data : p))).catch(err => console.error(err));
+      return;
+    }
+    setProductos(prev => prev.map(p =>
       String(p.id) === idStr ? { ...p, stock: Math.max(0, (Number(p.stock) || 0) + delta) } : p
     ));
   };
 
   const eliminarProducto = (id) => {
+    if (useApi) {
+      apiDeleteProducto(id).then(() => setProductos(prev => prev.filter(p => p.id !== id))).catch(err => console.error(err));
+      return;
+    }
     setProductos(productos.filter(p => p.id !== id));
   };
 
@@ -311,6 +370,11 @@ export const VentasProvider = ({ children }) => {
       if (delta == null) return p;
       return { ...p, stock: Math.max(0, (Number(p.stock) || 0) - delta) };
     }));
+    if (useApi) {
+      Object.entries(restarPorId).forEach(([idStr, qty]) => {
+        apiPatchStock(idStr, -qty).catch(err => console.error(err));
+      });
+    }
   };
 
   /** Devuelve al stock los componentes de un combo. Respeta unidad (vaso no suma). */
@@ -331,6 +395,11 @@ export const VentasProvider = ({ children }) => {
       if (delta == null) return p;
       return { ...p, stock: Math.max(0, (Number(p.stock) || 0) + delta) };
     }));
+    if (useApi) {
+      Object.entries(sumarPorId).forEach(([idStr, qty]) => {
+        apiPatchStock(idStr, qty).catch(err => console.error(err));
+      });
+    }
   };
 
   // Obtener productos de un puesto específico
@@ -412,17 +481,21 @@ export const VentasProvider = ({ children }) => {
     const nuevoPedido = {
       id: Date.now().toString(),
       numero: pedidos.length + 1,
-      items: itemsConPuesto, // Todos los items con su puestoId
-      itemsPorPuesto: itemsPorPuesto, // Items agrupados por puesto
-      estadosPorPuesto: estadosPorPuesto, // Estado de cada puesto
+      items: itemsConPuesto,
+      itemsPorPuesto: itemsPorPuesto,
+      estadosPorPuesto: estadosPorPuesto,
       cliente: cliente.trim(),
-      estado: 'pendiente', // Estado general del pedido
-      total: totalPedido, // 0 si es "Hijo de la comunidad"
+      estado: 'pendiente',
+      total: totalPedido,
       metodoPago: metodoPago || 'efectivo',
       comprobanteUrl: comprobanteUrl,
       fechaCreacion: new Date().toISOString(),
       fechaActualizacion: new Date().toISOString()
     };
+    if (useApi) {
+      apiCreatePedido(nuevoPedido).then((data) => setPedidos(prev => [...prev, data])).catch(err => console.error(err));
+      return nuevoPedido;
+    }
     setPedidos([...pedidos, nuevoPedido]);
     return nuevoPedido;
   };
@@ -434,48 +507,30 @@ export const VentasProvider = ({ children }) => {
    */
   const actualizarEstadoPedido = (id, nuevoEstado, puestoId = null) => {
     let pedidoActualizado = null;
-    
-    setPedidos(pedidos.map(p => {
+    const nextPedidos = pedidos.map(p => {
       if (p.id !== id) return p;
-
       let nuevoPedido = { ...p };
-      
-      // Si se especifica un puesto, actualizar solo ese puesto
       if (puestoId && p.estadosPorPuesto) {
         nuevoPedido = {
           ...p,
-          estadosPorPuesto: {
-            ...p.estadosPorPuesto,
-            [puestoId]: nuevoEstado
-          },
+          estadosPorPuesto: { ...p.estadosPorPuesto, [puestoId]: nuevoEstado },
           fechaActualizacion: new Date().toISOString()
         };
-
-        // Verificar si todos los puestos están listos
-        const todosListos = Object.values(nuevoPedido.estadosPorPuesto).every(
-          estado => estado === 'listo'
-        );
-        
-        if (todosListos) {
-          nuevoPedido.estado = 'listo';
-        } else if (nuevoEstado === 'en_elaboracion') {
-          // Si algún puesto pasa a elaboración, el pedido general también
-          nuevoPedido.estado = 'en_elaboracion';
-        }
+        const todosListos = Object.values(nuevoPedido.estadosPorPuesto).every(estado => estado === 'listo');
+        if (todosListos) nuevoPedido.estado = 'listo';
+        else if (nuevoEstado === 'en_elaboracion') nuevoPedido.estado = 'en_elaboracion';
       } else {
-        // Actualizar estado general del pedido
-        nuevoPedido = {
-          ...p,
-          estado: nuevoEstado,
-          fechaActualizacion: new Date().toISOString()
-        };
+        nuevoPedido = { ...p, estado: nuevoEstado, fechaActualizacion: new Date().toISOString() };
       }
-
       pedidoActualizado = nuevoPedido;
       return nuevoPedido;
-    }));
-    
-    // Emitir evento de sincronización después de actualizar
+    });
+    setPedidos(nextPedidos);
+    if (useApi && pedidoActualizado) {
+      apiUpdatePedido(id, { estado: pedidoActualizado.estado, estadosPorPuesto: pedidoActualizado.estadosPorPuesto })
+        .then((data) => setPedidos(prev => prev.map(pe => pe.id === id ? data : pe)))
+        .catch(err => console.error(err));
+    }
     if (!isUpdatingFromSync.current && pedidoActualizado) {
       emitSyncEvent('pedido_actualizado', pedidoActualizado);
     }
@@ -498,6 +553,10 @@ export const VentasProvider = ({ children }) => {
   };
 
   const eliminarPedido = (id) => {
+    if (useApi) {
+      apiDeletePedido(id).then(() => setPedidos(prev => prev.filter(p => p.id !== id))).catch(err => console.error(err));
+      return;
+    }
     setPedidos(pedidos.filter(p => p.id !== id));
   };
 
@@ -519,7 +578,6 @@ export const VentasProvider = ({ children }) => {
 
   // ========== GESTIÓN DE VENTAS ==========
   const registrarVenta = (pedidoId, metodoPago, comprobanteUrl = null) => {
-    // Emitir evento antes de registrar
     if (!isUpdatingFromSync.current) {
       emitSyncEvent('venta_registrada', { pedidoId, metodoPago });
     }
@@ -539,9 +597,12 @@ export const VentasProvider = ({ children }) => {
       fechaVenta: new Date().toLocaleDateString('es-AR')
     };
 
-    setVentas([...ventas, venta]);
+    if (useApi) {
+      apiCreateVenta(venta).then((data) => setVentas(prev => [...prev, data])).catch(err => console.error(err));
+    } else {
+      setVentas([...ventas, venta]);
+    }
 
-    // Emitir evento de venta registrada
     if (!isUpdatingFromSync.current) {
       emitSyncEvent('venta_registrada', venta);
     }

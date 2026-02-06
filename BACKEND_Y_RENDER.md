@@ -54,20 +54,18 @@ Después de esto, la API del backend ya puede leer/escribir en Postgres.
 
 ## 5. Conectar el frontend a la API
 
-Hoy la app guarda todo en **localStorage** y en memoria. Para que use la base de datos:
+El frontend **ya está preparado** para usar la API: si existe `VITE_API_URL`, carga y guarda todo en el backend. Solo falta configurar la variable:
 
-1. **Variable de entorno en el frontend**  
-   Donde construyas el frontend (Vite, etc.), definí la URL del backend, por ejemplo:
-   - `VITE_API_URL=https://ventasapp-backend.onrender.com`  
-   (reemplazá por la URL real de tu Web Service en Render).
+1. **En el despliegue del frontend (Render, Vercel, Netlify)**  
+   Agregá una variable de entorno:
+   - **Key:** `VITE_API_URL`
+   - **Value:** la URL de tu Web Service del backend (sin barra al final), por ejemplo:  
+     `https://ventasapp-backend.onrender.com`
 
-2. **Cambiar el contexto para usar la API**  
-   En `src/context/VentasContext.jsx` (o en una capa intermedia):
-   - En lugar de leer de `localStorage` al iniciar, hacer **GET** a `/api/puestos`, `/api/productos`, `/api/pedidos`, `/api/ventas` y cargar ese dato en el estado.
-   - En cada acción (crear pedido, registrar venta, actualizar producto, etc.), llamar al endpoint correspondiente (**POST**, **PUT**, **PATCH**, **DELETE**) y, si responde bien, actualizar el estado local (o volver a hacer GET).
+2. **Volver a desplegar** el frontend para que el build tome la variable. Después de eso, celular y PC verán los mismos puestos, productos, pedidos y ventas.
 
 3. **CORS**  
-   El backend ya tiene `cors()` habilitado; si el frontend está en otro dominio (por ejemplo `https://ventasapp.onrender.com`), no debería bloquear las peticiones.
+   El backend ya tiene `cors()` habilitado; no debería bloquear peticiones desde tu dominio del frontend.
 
 ---
 
@@ -88,4 +86,4 @@ Hoy la app guarda todo en **localStorage** y en memoria. Para que use la base de
 
 En el frontend, `VITE_API_URL` debe ser la URL del backend (sin `/api` al final; el código agregará `/api/puestos`, etc.).
 
-Si querés, el siguiente paso puede ser **implementar en el frontend** la capa que reemplaza localStorage por llamadas a esta API (por ejemplo un `api.js` y los cambios en `VentasContext.jsx`).
+**Nota:** Si no definís `VITE_API_URL`, la app sigue usando solo localStorage (cada dispositivo con sus propios datos).
