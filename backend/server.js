@@ -13,7 +13,10 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 const pool = process.env.DATABASE_URL
-  ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL.replace(/([?&])sslmode=[^&]*/g, '$1').replace(/[?&]$/, ''),
+      ssl: { rejectUnauthorized: false }
+    })
   : null;
 
 /** Ejecutar esquema al arrancar si hay DB (crea tablas si no existen). */
@@ -299,6 +302,28 @@ app.delete('/api/pedidos/:id', async (req, res) => {
     const { rowCount } = await pool.query('DELETE FROM pedidos WHERE id = $1', [req.params.id]);
     if (rowCount === 0) return res.status(404).json({ error: 'Pedido no encontrado' });
     res.status(204).send();
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Definir/actualizar pago de un pedido (y opcionalmente su estado)
+app.patch('/api/pedidos/:id/pago', async (req, res) => {
+  if (!pool) return res.status(503).json({ error: 'Base de datos no configurada' });
+  try {
+    const { metodoPago, comprobanteUrl, estado } = req.body || {};
+    await pool.query(
+      `UPDATE pedidos SET
+        metodo_pago = COALESCE($2, metodo_pago),
+        comprobante_url = COALESCE($3, comprobante_url),
+        estado = COALESCE($4, estado),
+        fecha_actualizacion = NOW()
+       WHERE id = $1`,
+      [req.params.id, metodoPago, comprobanteUrl, estado]
+    );
+    const { rows } = await pool.query('SELECT * FROM pedidos WHERE id = $1', [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Pedido no encontrado' });
+    res.json(pedidoToApi(rows[0]));
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
